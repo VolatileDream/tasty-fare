@@ -1,0 +1,111 @@
+<body>
+  <style>
+    body {
+      overflow: hidden;
+      margin: 0;
+    }
+    .content {
+      /* Scrolling setup */
+      height: 100vh;
+      width: 100vw;
+      display: grid;
+      grid-gap: 10px;
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr auto;
+
+      text-align: center;
+    }
+    .sized {
+      display: grid;
+      /* TODO: Change columns depending on screen size */
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr;
+      overflow: hidden;
+    }
+    .list {
+      overflow: auto;
+    }
+    .header {
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .footer {
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .food {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+
+      border-radius: 5px;
+      padding: 10px;
+    }
+    .food:hover {
+      background: gray;
+    }
+  </style>
+  <div class=content>
+    <div class=header>
+      <p>Grocery List</p>
+      <p>Recently Consumed</p>
+      <div><a href=/groceries.html>Add Item</a></div>
+      <div><a href=/prompt.html>Consumed Something</a></div>
+    </div>
+    <div class=sized>
+      <div class=list>
+
+        <div class=department>
+          <p>--- Department Name ---</p>
+        </div>
+
+        <div class="food">
+          <a href=#>[edit]</a>
+          <div class=foodname>one</div>
+          <a href=#>[bought]</a>
+        </div>
+
+        <div class=food>
+          <a href=#>[edit]</a>
+          <div class=foodname>one</div>
+          <a href=#>[bought]</a>
+        </div>
+
+        <div class=food>
+          <a href=#>[edit]</a>
+          <div class=foodname>one</div>
+          <a href=#>[bought]</a>
+        </div>
+
+      </div>
+      <div class=list>
+
+        <div class=department>
+          <p>--- [Unknown Department] ---</p>
+        </div>
+
+        <div class=food>
+          <a href=#>[&lt;]</a>
+          <div class=foodname>three</div>
+          <a href=#>[dismiss]</a>
+        </div>
+
+        <div class=department>
+          <p>--- Department Name ---</p>
+        </div>
+
+        <div class=food>
+          <a href=#>[&lt;]</a>
+          <div class=foodname>four</div>
+          <a href=#>[dismiss]</a>
+        </div>
+
+      </div>
+    </div>
+    <div class=footer>
+      <p>Feet.</p>
+      <p>Foot</p>
+    </div>
+  </div>
+</body>
