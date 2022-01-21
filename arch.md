@@ -30,6 +30,8 @@ UpcMapping
  - Items with no Department are in the "unknown" which is first.
  - There is a "[Trash]" department, which is last, and can not be deleted.
   - must be created with database setup.
+ - `prev` and `next` are used to make it an ordered list with easy update semantics,
+    instead of using a position numbering scheme.
 
 ### Consumed (set)
  * Food.ID
@@ -37,15 +39,12 @@ UpcMapping
 ### Groceries (set)
  * Food.ID
 
-`prev` and `next` are used to make it an ordered list with easy update semantics,
-instead of using a position numbering scheme.
 
 ### UpCMapping
  * unique UPC
  * Food.ID
 
 NOTE: when querying for UPC with type Variable you must zero out the bottom bits & checksum.
-
 
 # Routes
 
