@@ -66,12 +66,14 @@ NOTE: when querying for UPC with type Variable you must zero out the bottom bits
  * `/api/groceries` -> ?
   * Food to buy, grouped.
   * GET
-  * PATCH - add / remove items
+ * `/api/groceries/{id}` -> ?
+  * PUT / DELETE - add / remove items
 
- * `/api/consumed` -> Food[]
+ * `/api/consumed` -> ?
   * GET
-  * PATCH - add /remove items
-  * PATCH (w/upc)
+ * `/api/consumed/{id | upc}
+  * PUT / DELETE- add / remove items
+  * PUT / DELETE - add / remove items using upc
 
  * `/api/upc/{id}` -> (upc, Food)
   * May canonicalize UPC (eg, variable codes), check return.
@@ -79,4 +81,4 @@ NOTE: when querying for UPC with type Variable you must zero out the bottom bits
 
  * `/` forwards to `/app`
  * `/app` - application home
- * `/app/*` - application sub pages
+ * `/app/...` - application sub pages
