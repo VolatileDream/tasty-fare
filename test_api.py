@@ -75,3 +75,48 @@ class ApiTests(BaseServiceTest):
         {"id": None, "category": "[Unknown]", "food": []},
         {"id": 1, "category": "[Garbage]", "food": [{"name": "bread", "id": 1}]},
       ], categories)
+
+  def test_add_grocery(self):
+    with app.test_client() as client:
+      food = client.put("/api/food", json={"name":"bread"}).get_json()
+      fid = food['id']
+      client.put(f"/api/groceries/{fid}")
+
+      groceries = client.get("/api/groceries").get_json()
+
+      self.assertTrue(food in groceries)
+
+  def test_remove_grocery(self):
+    with app.test_client() as client:
+      food = client.put("/api/food", json={"name":"bread"}).get_json()
+      fid = food['id']
+
+      client.put(f"/api/groceries/{fid}")
+      client.delete(f"/api/groceries/{fid}")
+
+      groceries = client.get("/api/groceries").get_json()
+
+      self.assertTrue(food not in groceries)
+
+
+  def test_add_consumed(self):
+    with app.test_client() as client:
+      food = client.put("/api/food", json={"name":"bread"}).get_json()
+      fid = food['id']
+      client.put(f"/api/consumed/{fid}")
+
+      groceries = client.get("/api/consumed").get_json()
+
+      self.assertTrue(food in groceries)
+
+  def test_remove_consumed(self):
+    with app.test_client() as client:
+      food = client.put("/api/food", json={"name":"bread"}).get_json()
+      fid = food['id']
+
+      client.put(f"/api/consumed/{fid}")
+      client.delete(f"/api/consumed/{fid}")
+
+      groceries = client.get("/api/consumed").get_json()
+
+      self.assertTrue(food not in groceries)

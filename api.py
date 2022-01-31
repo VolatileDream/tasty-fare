@@ -145,21 +145,44 @@ def edit_category(catid):
 
 @app.route('/api/groceries')
 def list_groceries():
-  pass
+  with database() as db:
+    with cursor(db) as c:
+      # TODO: maybe replace?
+      return jsonify([{"id": g.rowid, "name": g.name, "category": g.category} for g in Grocery.list(c)])
 
 
 @app.route('/api/groceries/<int:foodid>', methods=('PUT', 'DELETE',))
 def edit_grocery_contents(foodid):
-  pass
+  with database() as db:
+    with cursor(db) as c:
+      food = maybe_404(Food.fetch(c, foodid))
+      if request.method == "PUT":
+        Grocery.add(c, foodid)
+      elif request.method == "DELETE":
+        Grocery.remove(c, foodid)
+
+      return jsonify({})
+
 
 @app.route('/api/consumed')
 def list_consumed():
-  pass
+  with database() as db:
+    with cursor(db) as c:
+      # TODO: maybe replace?
+      return jsonify([{"id": g.rowid, "name": g.name, "category": g.category} for g in ConsumedFood.list(c)])
 
 
 @app.route('/api/consumed/<int:foodid>', methods=('PUT', 'DELETE',))
 def edit_consumed_contents(foodid):
-  pass
+  with database() as db:
+    with cursor(db) as c:
+      food = maybe_404(Food.fetch(c, foodid))
+      if request.method == "PUT":
+        ConsumedFood.add(c, foodid)
+      elif request.method == "DELETE":
+        ConsumedFood.remove(c, foodid)
+
+      return jsonify({})
 
 
 @app.route('/api/upc')
