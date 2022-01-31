@@ -37,6 +37,10 @@ class Category(NamedTuple):
     return Category.__from_row(row)
 
   @staticmethod
+  def delete(cursor, rowid):
+    cursor.execute("DELETE FROM Categories WHERE rowid = ?;", (rowid,))
+
+  @staticmethod
   def save(cursor, category):
     if category.rowid is None:
       cursor.execute("INSERT INTO Categories (name) VALUES (?);", (category.name,))

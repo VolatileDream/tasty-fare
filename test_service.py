@@ -12,14 +12,14 @@ class BaseServiceTest(unittest.TestCase):
     self.dbfile = tempfile.NamedTemporaryFile()
     app.config['DB_FILE'] = self.dbfile.name
 
+    service_setup()
+
   def tearDown(self):
     self.dbfile.close()
 
 
 class ServiceTests(BaseServiceTest):
   def test_setup(self):
-    service_setup()
-
     with app.app_context():
       with storage.database() as db:
         with storage.cursor(db) as c:
