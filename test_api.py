@@ -11,15 +11,6 @@ class ApiTests(BaseServiceTest):
         {"id": None, "category": "[Unknown]", "food": []},
         {"id": 1, "category": "[Garbage]", "food": []}], categories)
 
-  def test_add_food(self):
-    with app.test_client() as client:
-      food = client.put("/api/food", json={"name":"bread"}).get_json()
-
-      categories = client.get("/api/food").get_json()
-      self.assertEqual([
-        {"id": None, "category": "[Unknown]", "food": [{"name": "bread", "id": 1}]},
-        {"id": 1, "category": "[Garbage]", "food": []}], categories)
-
   def test_add_category(self):
     with app.test_client() as client:
       created = client.put("/api/categories", json={"name": "Produce"}).get_json()
@@ -45,3 +36,42 @@ class ApiTests(BaseServiceTest):
 
       categories = client.get("/api/food").get_json()
       self.assertFalse({"id": cid, "category": "Produce", "food": []} in categories)
+
+  def test_add_food(self):
+    with app.test_client() as client:
+      food = client.put("/api/food", json={"name":"bread"}).get_json()
+
+      f = client.get(f"/api/food/{food['id']}").get_json()
+      self.assertEqual(food, f)
+
+      categories = client.get("/api/food").get_json()
+      self.assertEqual([
+        {"id": None, "category": "[Unknown]", "food": [{"name": "bread", "id": 1}]},
+        {"id": 1, "category": "[Garbage]", "food": []}], categories)
+
+  def test_edit_food(self):
+    with app.test_client() as client:
+      food = client.put("/api/food", json={"name":"br"}).get_json()
+      foodid = food['id']
+
+      f = client.put(f"/api/food/{foodid}", json={"name": "bread"}).get_json()
+      self.assertEqual({"name":"bread", "id":foodid, "category": None}, f)
+
+      categories = client.get("/api/food").get_json()
+      self.assertEqual([
+        {"id": None, "category": "[Unknown]", "food": [{"name": "bread", "id": 1}]},
+        {"id": 1, "category": "[Garbage]", "food": []}], categories)
+
+  def test_remove_food(self):
+    with app.test_client() as client:
+      food = client.put("/api/food", json={"name":"bread"}).get_json()
+      foodid = food['id']
+
+      f = client.delete(f"/api/food/{foodid}").get_json()
+      self.assertEqual({"name":"bread", "id":foodid, "category": 1}, f)
+
+      categories = client.get("/api/food").get_json()
+      self.assertEqual([
+        {"id": None, "category": "[Unknown]", "food": []},
+        {"id": 1, "category": "[Garbage]", "food": [{"name": "bread", "id": 1}]},
+      ], categories)

@@ -78,7 +78,26 @@ def create_food():
 
 @app.route('/api/food/<int:foodid>', methods=('GET', 'PUT', 'DELETE',))
 def edit_food(foodid):
-  pass
+  j = None
+  if request.method == "PUT":
+    j = request.get_json()
+    validators.require_named(j, "Food")
+
+  with database() as db:
+    with cursor(db) as c:
+      food = maybe_404(Food.fetch(c, foodid))
+
+      if request.method == "PUT":
+        food = Food.save(c, Food(j["name"], j.get("category", None), foodid))
+      elif request.method == "DELETE":
+        # DELETE moves food to the garbage category, it does __NOT__ delete it.
+        food = Food.save(c, Food(food.name, 1, foodid))
+
+      return jsonify({
+        "id": food.rowid,
+        "name": food.name,
+        "category": food.category,
+      })
 
 
 @app.route('/api/categories', methods=('GET', 'PUT',))

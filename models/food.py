@@ -40,6 +40,6 @@ class Food(NamedTuple):
       cursor.execute("INSERT INTO FoodItems (name, category) VALUES (?, ?);", (food.name, food.category,))
       return Food(food.name, food.category, cursor.lastrowid)
     else:
-      cursor.execute("UPDATE FoodItems name = ?, category = ? WHERE rowid = ?;", (food.name, food.category, food.rowid))
+      cursor.execute("UPDATE FoodItems SET name = ?, category = ? WHERE rowid = ?;", (food.name, food.category, food.rowid))
       return food
 

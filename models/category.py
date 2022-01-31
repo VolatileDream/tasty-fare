@@ -20,7 +20,7 @@ class Category(NamedTuple):
     zero = cursor.fetchone()[0]
     if zero:
       # We always want this item at the end of the Categories list.
-      cursor.execute("INSERT INTO Categories (name) VALUES ('[Garbage]');")
+      cursor.execute("INSERT INTO Categories (name, rowid) VALUES ('[Garbage]', 1);")
 
   @staticmethod
   def list(cursor):
