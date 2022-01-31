@@ -3,11 +3,12 @@ from typing import NamedTuple, Optional
 
 class Category(NamedTuple):
   name: str
-  id: Optional[int]
+  rowid: Optional[int] = None
 
   @staticmethod
   def __from_row(row):
-    return Category(row['name'], row['rowid'])
+    name, rowid = row
+    return Category(name, rowid)
 
   @staticmethod
   def setup(cursor):
@@ -23,13 +24,13 @@ class Category(NamedTuple):
 
   @staticmethod
   def list(cursor):
-    cursor.execute("SELECT rowid, name FROM Categories;")
+    cursor.execute("SELECT name, rowid FROM Categories;")
     for row in cursor:
       yield Category.__from_row(row)
 
   @staticmethod
   def fetch(cursor, i):
-    cursor.execute("SELECT rowid, name FROM Categories WHERE rowid = ?;", (i,))
+    cursor.execute("SELECT name, rowid FROM Categories WHERE rowid = ?;", (i,))
     row = cursor.fetchone()
     if row is None:
       return None
@@ -39,8 +40,8 @@ class Category(NamedTuple):
   def save(cursor, category):
     if category.rowid is None:
       cursor.execute("INSERT INTO Categories (name) VALUES (?);", (category.name,))
-      return Category.__from_row(category.name, cursor.lastrowid)
+      return Category(category.name, cursor.lastrowid)
     else:
-      cursor.execute("UPDATE Categories SET (name) VALUES (?) WHERE rowid = ?;", (category.name, category.rowid,))
+      cursor.execute("UPDATE Categories SET name = ? WHERE rowid = ?;", (category.name, category.rowid,))
       return category
 

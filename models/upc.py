@@ -7,14 +7,15 @@ class ProductCodeMapping(NamedTuple):
 
   @staticmethod
   def __from_row(row):
-    return ProductCodeMapping(row['code'], row['foodid'])
+    code, food = row
+    return ProductCodeMapping(code, food)
 
   @staticmethod
   def setup(cursor):
-    cursor.excute("""CREATE TABLE IF NOT EXISTS ProductCodes (
+    cursor.execute("""CREATE TABLE IF NOT EXISTS ProductCodes (
             code INTEGER PRIMARY KEY ON CONFLICT REPLACE,
             foodid INTEGER,
-            FOREIGN KEY (foodid) REFERENCES FoodItems (rowid) ON DELETE ERROR
+            FOREIGN KEY (foodid) REFERENCES FoodItems (rowid) ON DELETE RESTRICT
         );""")
 
   @staticmethod
@@ -26,3 +27,11 @@ class ProductCodeMapping(NamedTuple):
   @staticmethod
   def update_map(cursor, code, food):
     cursor.execute("INSERT INTO ProductCodes (code, foodid) VALUES (?, ?);", (code, food,))
+
+  @staticmethod
+  def lookup(cursor, code):
+    cursor.execute("SELECT code, foodid FROM ProductCodes WHERE code = ?;", (code,))
+    row = cursor.fetchone()
+    if row is None:
+      return None
+    return ProductCodeMapping.__from_row(row)

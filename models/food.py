@@ -3,7 +3,7 @@ from typing import NamedTuple, Optional
 
 class Food(NamedTuple):
   name: str
-  category: Optional[int]
+  category: Optional[int] = None
   rowid: Optional[int] = None
 
   @staticmethod
@@ -17,17 +17,18 @@ class Food(NamedTuple):
 
   @staticmethod
   def __from_row(row):
-    return Food(row['name'], row['category'], row['rowid'])
+    name, category, rowid = row
+    return Food(name, category, rowid)
 
   @staticmethod
   def list(cursor):
-    cursor.execute("SELECT rowid, name, category FROM FoodItems;")
+    cursor.execute("SELECT name, category, rowid FROM FoodItems;")
     for row in cursor:
       yield Food.__from_row(row)
 
   @staticmethod
   def fetch(cursor, i):
-    cursor.execute("SELECT rowid, name, category FROM FoodItems WHERE rowid = ?;", (i,))
+    cursor.execute("SELECT name, category, rowid FROM FoodItems WHERE rowid = ?;", (i,))
     row = cursor.fetchone()
     if row is None:
       return None
@@ -39,6 +40,6 @@ class Food(NamedTuple):
       cursor.execute("INSERT INTO FoodItems (name, category) VALUES (?, ?);", (food.name, food.category,))
       return Food(food.name, food.category, cursor.lastrowid)
     else:
-      cursor.execute("UPDATE FoodItems SET (name, category) VALUES (?, ?) WHERE rowid = ?;", (food.name, food.category, food.rowid))
+      cursor.execute("UPDATE FoodItems name = ?, category = ? WHERE rowid = ?;", (food.name, food.category, food.rowid))
       return food
 
