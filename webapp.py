@@ -64,7 +64,7 @@ def add_consumed():
 
   with database() as db:
     with cursor(db) as c:
-      if existing != None:
+      if existing != "NONE":
         foodid = int(existing)
         food = api.maybe_404(Food.fetch(c, foodid))
         ConsumedFood.add(c, food.rowid)
