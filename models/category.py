@@ -5,6 +5,10 @@ class Category(NamedTuple):
   name: str
   rowid: Optional[int] = None
 
+  # This is here as a constant.
+  # It can never be changed.
+  GARBAGE = 1
+
   @staticmethod
   def __from_row(row):
     name, rowid = row
@@ -20,7 +24,7 @@ class Category(NamedTuple):
     zero = cursor.fetchone()[0]
     if zero:
       # We always want this item at the end of the Categories list.
-      cursor.execute("INSERT INTO Categories (name, rowid) VALUES ('[Garbage]', 1);")
+      cursor.execute("INSERT INTO Categories (name, rowid) VALUES ('[Garbage]', ?);", (Category.GARBAGE,))
 
   @staticmethod
   def list(cursor):
@@ -38,6 +42,8 @@ class Category(NamedTuple):
 
   @staticmethod
   def delete(cursor, rowid):
+    if rowid == Category.GARBAGE:
+      raise Exception("Can not delete category '[Garbage]'")
     cursor.execute("DELETE FROM Categories WHERE rowid = ?;", (rowid,))
 
   @staticmethod
@@ -45,6 +51,8 @@ class Category(NamedTuple):
     if category.rowid is None:
       cursor.execute("INSERT INTO Categories (name) VALUES (?);", (category.name,))
       return Category(category.name, cursor.lastrowid)
+    elif category.rowid == Category.GARBAGE:
+      raise Exception("Can not rename category '[Garbage]'")
     else:
       cursor.execute("UPDATE Categories SET name = ? WHERE rowid = ?;", (category.name, category.rowid,))
       return category

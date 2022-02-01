@@ -61,3 +61,19 @@ class CategoryTests(unittest.TestCase):
     cats = set(Category.list(cursor))
 
     self.assertEqual(set([c1, c2, Category("[Garbage]", 1)]), cats)
+
+  def test_delete_garbage(self):
+    db = database()
+    cursor = db.cursor()
+    Category.setup(cursor)
+
+    with self.assertRaises(Exception):
+      Category.delete(cursor, Category.Garbage)
+
+  def test_rename_garbage(self):
+    db = database()
+    cursor = db.cursor()
+    Category.setup(cursor)
+
+    with self.assertRaises(Exception):
+      Category.save(cursor, Category("newname", Category.Garbage))
