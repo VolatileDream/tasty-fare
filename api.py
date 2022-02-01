@@ -19,14 +19,6 @@ def maybe_404(item):
   return item
 
 
-def category_dict(c, index):
-  d = {}
-  d["id"] = c.rowid
-  d["category"] = c.name
-  d["food"] = [{"id": f.rowid, "name": f.name} for f in index[c.rowid]]
-  return d
-
-
 def categorized_food(cursor, food_gen):
   categories = {None: Category("[Unknown]")}
   for cat in Category.list(cursor):
@@ -58,22 +50,9 @@ def categorized_food(cursor, food_gen):
 def list_food():
   with database() as db:
     with cursor(db) as c:
-      categories = list(Category.list(c))
-      foods = list(Food.list(c))
+      categories = categorized_food(c, Food.list)
 
-  grouped = defaultdict(set)
-  for f in foods:
-    grouped[f.category].add(f)
-
-  # Don't depend on order.
-  shuffle(categories)
-  categories.insert(0, Category("[Unknown]"))
-
-  result = []
-  for c in categories:
-    result.append(category_dict(c, grouped))
-
-  return jsonify(result)
+  return jsonify(categories)
 
 
 @app.route('/api/food', methods=('PUT',))

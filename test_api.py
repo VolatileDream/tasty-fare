@@ -26,7 +26,7 @@ class ApiTests(BaseServiceTest):
     with app.test_client() as client:
       categories = client.get("/api/food").get_json()
 
-    self.assertEqual([
+      CategorizedFoodEqual(self, [
         {"id": None, "category": "[Unknown]", "food": []},
         {"id": 1, "category": "[Garbage]", "food": []}], categories)
 
@@ -64,7 +64,7 @@ class ApiTests(BaseServiceTest):
       self.assertEqual(food, f)
 
       categories = client.get("/api/food").get_json()
-      self.assertEqual([
+      CategorizedFoodEqual(self, [
         {"id": None, "category": "[Unknown]", "food": [{"name": "bread", "id": 1}]},
         {"id": 1, "category": "[Garbage]", "food": []}], categories)
 
@@ -77,7 +77,7 @@ class ApiTests(BaseServiceTest):
       self.assertEqual({"name":"bread", "id":foodid, "category": None}, f)
 
       categories = client.get("/api/food").get_json()
-      self.assertEqual([
+      CategorizedFoodEqual(self, [
         {"id": None, "category": "[Unknown]", "food": [{"name": "bread", "id": 1}]},
         {"id": 1, "category": "[Garbage]", "food": []}], categories)
 
@@ -90,7 +90,7 @@ class ApiTests(BaseServiceTest):
       self.assertEqual({"name":"bread", "id":foodid, "category": 1}, f)
 
       categories = client.get("/api/food").get_json()
-      self.assertEqual([
+      CategorizedFoodEqual(self, [
         {"id": None, "category": "[Unknown]", "food": []},
         {"id": 1, "category": "[Garbage]", "food": [{"name": "bread", "id": 1}]},
       ], categories)
