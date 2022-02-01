@@ -18,4 +18,4 @@ def service_setup():
 
 def service():
   service_setup()
-  app.run()
+  return app
