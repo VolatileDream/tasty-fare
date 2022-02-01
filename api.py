@@ -19,10 +19,18 @@ def maybe_404(item):
   return item
 
 
-def categorized_food(cursor, food_gen):
+def categorized_food(cursor, food_gen, include_garbage=False):
   categories = {None: Category("[Unknown]")}
   for cat in Category.list(cursor):
     categories[cat.rowid] = cat
+
+  if not include_garbage:
+    # Remove this.
+    del categories[Category.GARBAGE]
+  
+  categories_seen = list(categories.values())
+  # Don't depend on order.
+  shuffle(categories_seen)
 
   grouped_foods = defaultdict(set)
   for food in food_gen(cursor):
@@ -35,11 +43,6 @@ def categorized_food(cursor, food_gen):
     d["food"] = [{"id": f.rowid, "name": f.name} for f in grouped_foods[c.rowid]]
     return d
 
-  categories_seen = list(categories.values())
-
-  # Don't depend on order.
-  shuffle(categories_seen)
-
   result = []
   for cat in categories_seen:
     result.append(category_dict(cat))
@@ -50,7 +53,7 @@ def categorized_food(cursor, food_gen):
 def list_food():
   with database() as db:
     with cursor(db) as c:
-      categories = categorized_food(c, Food.list)
+      categories = categorized_food(c, Food.list, include_garbage=True)
 
   return jsonify(categories)
 
