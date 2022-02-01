@@ -1,3 +1,4 @@
+<!doctype HTML>
 <body>
   <style>
     body {
@@ -74,5 +75,26 @@
       {% endblock %}
     </div>
   </div>
+  <script>
+    function jittery_random(target_val, width) {
+      var min = target_val - width / 2;
+      return Math.random() * width + min;
+    }
+
+    var _page_refresh_timeout = {};
+    function watchdog() {
+      // Interactions with the app reset the page refresh.
+      // This makes sure that when someone starts editing on a long-lived page
+      // that it's not too far out of date.
+      clearTimeout(_page_refresh_timeout);
+      const timeout_mins = jittery_random(15, 5); // 15ish minutes.
+      _page_refresh_timeout = setTimeout(function () {
+        console.log("Interaction timeout, reloading page after a waiting:", Math.trunc(timeout_mins), " minutes.");
+        window.location.reload();
+      }, timeout_mins * 60 * 1000);
+    }
+
+    watchdog();
+  </script>
 </body>
 
