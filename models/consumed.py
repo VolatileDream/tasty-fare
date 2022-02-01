@@ -7,7 +7,7 @@ class ConsumedFood(NamedTuple):
   @staticmethod
   def setup(cursor):
     cursor.execute("""CREATE TABLE IF NOT EXISTS ConsumedFood (
-            foodid INTEGER PRIMARY KEY,
+            foodid INTEGER PRIMARY KEY ON CONFLICT IGNORE,
             FOREIGN KEY (foodid) REFERENCES FoodItems (rowid) ON DELETE CASCADE
         );""")
 

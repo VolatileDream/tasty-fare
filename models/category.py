@@ -5,6 +5,14 @@ class Category(NamedTuple):
   name: str
   rowid: Optional[int] = None
 
+  def __lt__(self, other):
+    if self.rowid is None or other.rowid == Category.GARBAGE:
+      return True
+    elif self.rowid == Category.GARBAGE or other.rowid is None:
+      return False
+
+    return self.name < other.name
+
   # This is here as a constant.
   # It can never be changed.
   GARBAGE = 1
