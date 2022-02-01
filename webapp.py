@@ -1,11 +1,20 @@
-from flask import abort, jsonify, render_template, request, redirect
+from flask import abort, render_template, request, redirect
 from app import app
 import api
 from models import Food, Category, ConsumedFood, Grocery, ProductCodeMapping
 from storage import database, cursor
 
-# TODO: don't access the api this way, it's horrible.
-import json
+def category_dictkey(c):
+  cname = c["category"]
+  # This is terrible...
+  if cname == "[Unknown]":
+    return ""
+  elif cname == "[Garbage]":
+    return "~~~"
+  return c["category"].upper()
+
+def food_dictkey(f):
+  return f["name"].upper()
 
 
 @app.route("/")
@@ -20,8 +29,12 @@ def index():
       groceries = api.categorized_food(c, Grocery.list)
       consumed = api.categorized_food(c, ConsumedFood.list)
       
-  groceries.sort(key=lambda g: g["category"])
-  consumed.sort(key=lambda c: c["category"])
+  groceries.sort(key=category_dictkey)
+  for g in groceries:
+    g["food"].sort(key=food_dictkey)
+  consumed.sort(key=category_dictkey)
+  for c in consumed:
+    c["food"].sort(key=food_dictkey)
 
   return render_template("index.html", groceries=groceries, consumed=consumed)
 
@@ -33,8 +46,12 @@ def web_grocery_list():
       groceries = api.categorized_food(c, Grocery.list)
       food = api.categorized_food(c, Food.list, include_garbage=True)
 
-  groceries.sort(key=lambda g: g["category"])
-  food.sort(key=lambda c: c["category"])
+  groceries.sort(key=category_dictkey)
+  for g in groceries:
+    g["food"].sort(key=food_dictkey)
+  food.sort(key=category_dictkey)
+  for f in food:
+    f["food"].sort(key=food_dictkey)
   return render_template("groceries.html", groceries=groceries, allfood=food)
 
 
@@ -44,7 +61,9 @@ def add_consumed():
     with database() as db:
       with cursor(db) as c:
         food = api.categorized_food(c, Food.list)
-    food.sort(key=lambda c: c["category"])
+    food.sort(key=category_dictkey)
+    for f in food:
+      f["food"].sort(key=food_dictkey)
     return render_template("add-consumed.html", allfood=food)
 
   existing = request.form.get("existing-food", "NONE")
