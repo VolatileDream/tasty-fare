@@ -27,6 +27,7 @@ class ProductCodeMapping(NamedTuple):
   @staticmethod
   def update_map(cursor, code, food):
     cursor.execute("INSERT INTO ProductCodes (code, foodid) VALUES (?, ?);", (code, food,))
+    return ProductCodeMapping(code, food)
 
   @staticmethod
   def lookup(cursor, code):

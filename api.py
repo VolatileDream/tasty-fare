@@ -12,18 +12,6 @@ import validators
 from upc import UpcType, Upc
 
 
-def as_int(val):
-  if val is None:
-    return None
-  return int(val)
-
-
-def str_id(id):
-  if id is None:
-    return None
-  return str(id)
-
-
 def maybe_404(item):
   "404 if no value is provided"
   if item is None:
@@ -187,11 +175,45 @@ def edit_consumed_contents(foodid):
 
 @app.route('/api/upc')
 def list_upc():
-  pass
+  with database() as db:
+    with cursor(db) as c:
+      upcs = {}
+      for code, fid in ProductCodeMapping.list(c):
+        upcs[code] = fid
+
+      return jsonify(upcs)
 
 
-@app.route('/api/upc/<int:code>', methods=('GET', 'PUT',))
-def lookup_upd(code):
-  pass
+@app.route('/api/upc/<int:code>', methods=("GET", "PUT",))
+def find_upc(code):
+  fid = None
+  if request.method == "PUT":
+    j = request.get_json()
+    if "id" not in j:
+      abort(400, "Missing 'id' for UPC mapping")
+    fid = j["id"]
+
+  try:
+    upc = Upc.decode(code)
+    if not upc.check():
+      abort(400, "Invalid UPC - does not checksum: " + str(Upc._Upc__checksum(code)))
+
+    if upc.type() == UpcType.VariableWeight:
+      code = upc.encode(canonical=True)
+  except Exception as e:
+      #print(code, e)
+      abort(400, "Invalid UPC - fails to decode")
+
+
+  with database() as db:
+    with cursor(db) as c:
+      result = ProductCodeMapping.lookup(c, code)
+      if request.method == "PUT":
+        result = ProductCodeMapping.update_map(c, code, fid)
+
+  return jsonify({
+    "upc": result.upc,
+    "food.id": result.food,
+  })
 
 

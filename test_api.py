@@ -120,3 +120,63 @@ class ApiTests(BaseServiceTest):
       groceries = client.get("/api/consumed").get_json()
 
       self.assertTrue(food not in groceries)
+
+  def test_invalid_upc(self):
+    with app.test_client() as client:
+      response = client.get("/api/upc/707581877571")
+      self.assertEqual(response.status_code, 400)
+
+  def test_list_upc(self):
+    with app.test_client() as client:
+      food = client.put("/api/food", json={"name":"bread"}).get_json()
+
+      client.put("/api/upc/707581877570", json={"id": food['id']})
+
+      result = client.get("/api/upc").get_json()
+      self.assertEqual({"707581877570": food['id']}, result)
+
+  def test_add_variable_upc(self):
+    with app.test_client() as client:
+      food = client.put("/api/food", json={"name":"bread"}).get_json()
+
+      code = 2621021012346
+      vcode= 2621021000002 # zero'd out & new checksum computed
+      put = client.put(f"/api/upc/{code}", json={"id": food['id']})
+      self.assertEqual(put.status_code, 200)
+      self.assertEqual(put.get_json()["upc"], vcode)
+      self.assertEqual(put.get_json()["food.id"], food['id'])
+
+  def test_update_variable_upc(self):
+    with app.test_client() as client:
+      food = client.put("/api/food", json={"name":"bread"}).get_json()
+
+      code = 2621021012346
+      client.put(f"/api/upc/{code}", json={"id": food['id']})
+
+      vcode= 2621021000002 # zero'd out & new checksum computed
+      put = client.put(f"/api/upc/{vcode}", json={"id": food['id']})
+
+      self.assertEqual(put.status_code, 200)
+      self.assertEqual(put.get_json()["upc"], vcode)
+      self.assertEqual(put.get_json()["food.id"], food['id'])
+
+  def test_add_upc(self):
+    with app.test_client() as client:
+      food = client.put("/api/food", json={"name":"bread"}).get_json()
+
+      code = 707581877570
+      put = client.put(f"/api/upc/{code}", json={"id": food['id']})
+      self.assertEqual(put.status_code, 200)
+      self.assertEqual(put.get_json()["upc"], code)
+      self.assertEqual(put.get_json()["food.id"], food['id'])
+
+  def test_update_upc(self):
+    with app.test_client() as client:
+      bread = client.put("/api/food", json={"name":"bread"}).get_json()
+      milk = client.put("/api/food", json={"name":"milk"}).get_json()
+
+      code = 707581877570
+      put = client.put(f"/api/upc/{code}", json={"id": bread['id']})
+      put = client.put(f"/api/upc/{code}", json={"id": milk['id']})
+      self.assertEqual(put.status_code, 200)
+      self.assertEqual(put.get_json()["food.id"], milk['id'])
