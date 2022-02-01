@@ -1,0 +1,50 @@
+{% extends "prompt.html" %}
+
+{% block prompt %}
+  <style>
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+  </style>
+  <h2>Add Recently Consumed Food</h2>
+  <form method=POST>
+    <label>Existing Food:</label>
+    <select name=existing-food>
+      <option value="NONE">Select existing food...</option>
+      {% for category in allfood %}
+      <optgroup label="{{ category['category'] }}">
+        {% for food in category['food'] %}
+        <option value="{{ food['id'] }}" label="{{ food['name'] }}">{{ food['name'] }}</option>
+        {% endfor %}
+      </optgroup>
+      {% endfor %}
+    </select>
+
+    <p></p><p></p>
+<!--
+    <label>By UPC:</label>
+    <input type=text name=upc pattern="^[0-9]*$" placeholder="Numeric product code..." />
+
+    <p></p><p></p>
+-->
+    <label>Add something new: </label>
+    <input type=text name=new-food />
+
+    <p></p><p></p>
+
+    <p></p><input type=submit value="Consume" />
+  </form>
+{% endblock %}
+
+{% block outofprompt %}
+  <datalist id=all-food>
+    {% for category in allfood %}
+    <optgroup label="{{ category['category'] }}">
+      {% for food in category['food'] %}
+      <option value="{{ food['id'] }}" label="{{ food['name'] }}">{{ food['name'] }}</option>
+      {% endfor %}
+    </optgroup>
+    {% endfor %}
+  </datalist>
+{% endblock %}

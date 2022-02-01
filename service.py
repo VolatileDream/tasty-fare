@@ -1,9 +1,9 @@
 
-import config
 from app import app
 import storage
 import api
 import models
+import webapp
 
 def service_setup():
   with app.app_context():

@@ -1,0 +1,78 @@
+<body>
+  <style>
+    body {
+      overflow: hidden;
+      margin: 0;
+    }
+    .content {
+      /* Scrolling setup */
+      height: 100vh;
+      width: 100vw;
+      display: grid;
+      grid-gap: 10px;
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr auto;
+
+      text-align: center;
+    }
+    .sized {
+      display: grid;
+      /* TODO: Change columns depending on screen size */
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr;
+      overflow: hidden;
+    }
+    .list {
+      overflow: auto;
+    }
+    .header {
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .footer {
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .food {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+
+      border-radius: 5px;
+      padding: 10px;
+    }
+    .food.odd {
+      background: #fff;
+    }
+    .food.even {
+      background: #eee;
+    }
+    {% block styling %}
+    {% endblock %}
+    .food:hover {
+      background: gray;
+    }
+  </style>
+  <div class=content>
+    <div class=header>
+      {% block header %}
+      {% endblock %}
+    </div>
+    <div class=sized>
+      <div class=list>
+        {% block left_list %}
+        {% endblock %}
+      </div>
+      <div class=list>
+        {% block right_list %}
+        {% endblock %}
+      </div>
+    </div>
+    <div class=footer>
+      {% block footer %}
+      {% endblock %}
+    </div>
+  </div>
+</body>
+

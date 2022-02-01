@@ -35,46 +35,13 @@
       text-align: center;
     }
   </style>
-  <div style='text-align:center;'>
-    <h2>Not in the overlay</h2>
-    <p>Some other stuff.</p>
-    <p>Some other stuff.</p>
-    <p>Some other stuff.</p>
-    <p>Some other stuff.</p>
-    <p>Some other stuff.</p>
-    <p>Some other stuff.</p>
-    <p>Some other stuff.</p>
-    <p>Some other stuff.</p>
-    <p>Some other stuff.</p>
-    <p>Some other stuff.</p>
-    <p>Some other stuff.</p>
-    <p>Some other stuff.</p>
-    <p>Some other stuff.</p>
-    <p>Some other stuff.</p>
-    <p>Some other stuff.</p>
-    <p>Some other stuff.</p>
-    <p>Some other stuff.</p>
-    <p>Some other stuff.</p>
-  </div>
   <div class=overlay>
     <div class='prompt overlay-content'>
-      <h2>Add Recently Consumed Food</h2>
-      <form action=post>
-        <label>Food:</label>
-        <input type=text list=all-food id=food-id autocomplete=off />
-        <input type=submit value="Consume" />
-      </form>
+      {% block prompt %}
+      {% endblock %}
     </div>
   </div>
-  <datalist id=all-food>
-    <optgroup>
-      <option>Food</option>
-      <option>Other Food</option>
-    </optgroup>
-    <optgroup>
-      <option>Thingy</option>
-      <option>Something else</option>
-    </optgroup>
-  </datalist>
+  {% block outofprompt %}
+  {% endblock %}
 </body>
 

@@ -1,0 +1,31 @@
+{% extends "prompt.html" %}
+
+{% block prompt %}
+  <h2>All Categories</h2>
+  <div class=list>
+  {% for cat in allcategories %}
+    <p>{{ cat.name }}</p>
+  {% endfor %}
+  </div>
+
+  <h2>Rename</h2>
+  <form method=POST>
+    <input type=hidden name=type value=rename />
+    <select name=category>
+      <option value="None" selected>Pick a Category to rename...</option>
+      {% for c in somecategories %}
+        <option value="{{ c.rowid }}">{{ c.name }}</option>
+      {% endfor %}
+    </select>
+    <input type=text name=new-name placeholder="New name..." />
+    <br/>
+    <input type=submit value="Rename" />
+  </form>
+
+  <h2>Add New</h2>
+  <form method=POST>
+    <input type=hidden name=type value=create />
+    <input type=text name=name placeholder="Name..." />
+    <input type=submit value="Create Category" />
+  </form>
+{% endblock %}
