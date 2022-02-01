@@ -2,6 +2,25 @@ from test_service import BaseServiceTest
 from app import app
 from api import list_food
 
+def CategorizedFoodEqual(test, l1, l2):
+  test.assertEqual(len(l1), len(l2), "Category lengths mismatch")
+  c1 = {}
+  for cat in l1:
+    c1[cat["id"]] = cat
+
+  c2 = {}
+  for cat in l2:
+    c2[cat["id"]] = cat
+
+  test.assertSetEqual(set(c1.keys()), set(c2.keys()), "Category ids do not match")
+
+  for cid in c1.keys():
+    cat1 = c1[cid]
+    cat2 = c2[cid]
+    test.assertEqual(cat1["category"], cat2["category"], "Category names do not match")
+    test.assertEqual(cat1["food"], cat2["food"])
+
+
 class ApiTests(BaseServiceTest):
   def test_list_after_setup(self):
     with app.test_client() as client:
@@ -84,7 +103,9 @@ class ApiTests(BaseServiceTest):
 
       groceries = client.get("/api/groceries").get_json()
 
-      self.assertTrue(food in groceries)
+      CategorizedFoodEqual(self, [
+        {"id": None, "category": "[Unknown]", "food": [{"name": "bread", "id": 1}]},
+      ], groceries)
 
   def test_remove_grocery(self):
     with app.test_client() as client:
@@ -107,7 +128,9 @@ class ApiTests(BaseServiceTest):
 
       groceries = client.get("/api/consumed").get_json()
 
-      self.assertTrue(food in groceries)
+      CategorizedFoodEqual(self, [
+        {"id": None, "category": "[Unknown]", "food": [{"name": "bread", "id": 1}]},
+      ], groceries)
 
   def test_remove_consumed(self):
     with app.test_client() as client:

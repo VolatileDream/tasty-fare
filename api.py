@@ -19,6 +19,41 @@ def maybe_404(item):
   return item
 
 
+def category_dict(c, index):
+  d = {}
+  d["id"] = c.rowid
+  d["category"] = c.name
+  d["food"] = [{"id": f.rowid, "name": f.name} for f in index[c.rowid]]
+  return d
+
+
+def categorized_food(cursor, food_gen):
+  categories = {None: Category("[Unknown]")}
+  for cat in Category.list(cursor):
+    categories[cat.rowid] = cat
+
+  grouped_foods = defaultdict(set)
+  for food in food_gen(cursor):
+    grouped_foods[food.category].add(food)
+
+  def category_dict(c):
+    d = {}
+    d["id"] = c.rowid
+    d["category"] = c.name
+    d["food"] = [{"id": f.rowid, "name": f.name} for f in grouped_foods[c.rowid]]
+    return d
+
+  categories_seen = list(categories.values())
+
+  # Don't depend on order.
+  shuffle(categories_seen)
+
+  result = []
+  for cat in categories_seen:
+    result.append(category_dict(cat))
+  return result
+
+
 @app.route('/api/food')
 def list_food():
   with database() as db:
@@ -32,17 +67,11 @@ def list_food():
 
   # Don't depend on order.
   shuffle(categories)
+  categories.insert(0, Category("[Unknown]"))
 
-  def category_dict(c):
-    d = {}
-    d["id"] = c.rowid
-    d["category"] = c.name
-    d["food"] = [{"id": f.rowid, "name": f.name} for f in grouped[c.rowid]]
-    return d
-
-  result = [category_dict(Category("[Unknown]"))]
+  result = []
   for c in categories:
-    result.append(category_dict(c))
+    result.append(category_dict(c, grouped))
 
   return jsonify(result)
 
@@ -135,8 +164,10 @@ def edit_category(catid):
 def list_groceries():
   with database() as db:
     with cursor(db) as c:
-      # TODO: maybe replace?
-      return jsonify([{"id": g.rowid, "name": g.name, "category": g.category} for g in Grocery.list(c)])
+      all_cats = categorized_food(c, Grocery.list)
+
+  result = [cat for cat in all_cats if len(cat["food"]) > 0]
+  return jsonify(result)
 
 
 @app.route('/api/groceries/<int:foodid>', methods=('PUT', 'DELETE',))
@@ -156,8 +187,10 @@ def edit_grocery_contents(foodid):
 def list_consumed():
   with database() as db:
     with cursor(db) as c:
-      # TODO: maybe replace?
-      return jsonify([{"id": g.rowid, "name": g.name, "category": g.category} for g in ConsumedFood.list(c)])
+      all_cats = categorized_food(c, ConsumedFood.list)
+
+  result = [cat for cat in all_cats if len(cat["food"]) > 0]
+  return jsonify(result)
 
 
 @app.route('/api/consumed/<int:foodid>', methods=('PUT', 'DELETE',))
