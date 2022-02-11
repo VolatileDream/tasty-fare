@@ -44,15 +44,24 @@ def web_grocery_list():
   with database() as db:
     with cursor(db) as c:
       groceries = api.categorized_food(c, Grocery.list)
-      food = api.categorized_food(c, Food.list, include_garbage=True)
+      allfood = api.categorized_food(c, Food.list, include_garbage=True)
 
+  buying = set() # food ids
   groceries.sort(key=category_dictkey)
   for g in groceries:
     g["food"].sort(key=food_dictkey)
-  food.sort(key=category_dictkey)
-  for f in food:
-    f["food"].sort(key=food_dictkey)
-  return render_template("groceries.html", groceries=groceries, allfood=food)
+    for food in g["food"]:
+      buying.add(food["id"])
+
+  allfood.sort(key=category_dictkey)
+  for category in allfood:
+    foods = category["food"]
+    for index in reversed(range(len(category["food"]))):
+      if foods[index]["id"] in buying:
+        foods.pop(index)
+
+    foods.sort(key=food_dictkey)
+  return render_template("groceries.html", groceries=groceries, allfood=allfood)
 
 
 @app.route("/app/consumed", methods=("GET", "POST",))
