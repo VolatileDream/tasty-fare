@@ -13,6 +13,7 @@ def service_setup():
         models.Food.setup(c)
         models.ConsumedFood.setup(c)
         models.Grocery.setup(c)
+        models.Recipe.setup(c)
         models.ProductCodeMapping.setup(c)
 
 
