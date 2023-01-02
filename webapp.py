@@ -73,7 +73,7 @@ def add_consumed():
     food.sort(key=category_dictkey)
     for f in food:
       f["food"].sort(key=food_dictkey)
-    return render_template("add-consumed.html", allfood=food)
+    return render_template("consumed-prompt.html", allfood=food)
 
   existing = request.form.get("existing-food", "NONE")
   upc = request.form.get("upc", "")
@@ -154,7 +154,7 @@ def web_new_food():
 
     categories.append(Category("[unknown]"))
     categories.sort()
-    return render_template("edit-food.html", allcategories=categories)
+    return render_template("food-edit.html", allcategories=categories)
 
   name = request.form.get("name", "")
   category = request.form.get("category", "None")
@@ -184,7 +184,7 @@ def web_edit_food(foodid):
 
     categories.append(Category("[unknown]"))
     categories.sort()
-    return render_template("edit-food.html",
+    return render_template("food-edit.html",
         rowid=food.rowid,
         name=food.name,
         category=food.category,
