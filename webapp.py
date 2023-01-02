@@ -122,7 +122,7 @@ def web_categories():
     categories = somecategories.copy()
     categories.insert(0, Category("[unknown]"))
     categories.append(garbage)
-    return render_template("categories.html", allcategories=categories, somecategories=somecategories)
+    return render_template("categories-prompt.html", allcategories=categories, somecategories=somecategories)
 
   cat = None
   t = request.form.get("type", "")
