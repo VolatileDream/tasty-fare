@@ -1,0 +1,20 @@
+{% extends "prompt.html" %}
+
+{% block prompt %}
+  <style>
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+  </style>
+
+  <h2>Add Recipe</h2>
+  <form method=POST action=/app/recipe/new>
+    <label>Name:</label>
+    <input type=text name=name value="{{ name }}" />
+    <p></p><input type=submit value="Save" />
+  </form>
+{% endblock %}
+
+
+

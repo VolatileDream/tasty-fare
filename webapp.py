@@ -1,7 +1,7 @@
 from flask import abort, render_template, request, redirect
 from app import app
 import api
-from models import Food, Category, ConsumedFood, Grocery, ProductCodeMapping
+from models import Food, Category, ConsumedFood, Grocery, ProductCodeMapping, Recipe
 from storage import database, cursor
 
 def category_dictkey(c):
@@ -254,3 +254,95 @@ def dismiss_consumed(foodid):
       ConsumedFood.remove(c, food.rowid)
 
   return redirect(request.referrer)
+
+
+@app.route("/app/new")
+def web_prompt_creation():
+  return render_template("new-prompt.html")
+
+
+@app.route("/app/recipes")
+def web_recipe_list():
+  with database() as db:
+    with cursor(db) as c:
+      groceries = api.categorized_food(c, Grocery.list)
+      with cursor(db) as r:
+        recipes = [{
+          "id": recipe.rowid,
+          "name": recipe.name,
+          "ingredients": list(Recipe.ingredients(r, recipe.rowid)),
+        } for recipe in Recipe.list(c)]
+  
+  groceries.sort(key=category_dictkey)
+
+  return render_template("recipe-list.html",
+    groceries=groceries,
+    allrecipes=recipes)
+
+
+# Creating a recipe only prompts for the name,
+# adding ingredients happens on the edit page.
+@app.route("/app/recipe/new", methods=("GET", "POST"))
+def web_new_recipe():
+  if request.method == "GET":
+    with database() as db:
+      with cursor(db) as c:
+        recipes = list(Recipe.list(c))
+
+    return render_template("recipe-add.html", allrecipes=recipes)
+
+  name = request.form.get("name", "")
+  if name == "":
+    abort(400, "Recipes need a non-empty name")
+
+  with database() as db:
+    with cursor(db) as c:
+      recipe = Recipe.save(c, Recipe(name))
+
+  return redirect("/app/recipe/{id}".format(id=recipe.rowid))
+
+
+@app.route("/app/recipe/<int:rid>")
+def web_edit_recipe(rid):
+  with database() as db:
+    with cursor(db) as c:
+      recipe = api.maybe_404(Recipe.fetch(c, rid))
+      ingredients = api.categorized_food(c, lambda c: Recipe.ingredients(c, rid))
+      allfood = api.categorized_food(c, Food.list, include_garbage=True)
+
+  ingredients.sort(key=category_dictkey)
+  allfood.sort(key=category_dictkey)
+
+  return render_template("recipe-edit.html",
+      recipe=recipe,
+      ingredients=ingredients,
+      allfood=allfood)
+
+@app.route("/app/recipe/<int:rid>/buy")
+def web_recipe_buy(rid):
+  with database() as db:
+    with cursor(db) as c:
+      recipe = api.maybe_404(Recipe.fetch(c, rid))
+      ingredients = list(Recipe.ingredients(c, rid))
+      for ingredient in ingredients:
+        Grocery.add(c, ingredient.rowid)
+        ConsumedFood.remove(c, ingredient.rowid)
+
+  return redirect(request.referrer)
+  
+
+@app.route("/app/recipe/<int:rid>/ingredients/<int:iid>/<action>")
+def web_edit_recipe_ingredient(rid, iid, action):
+  if action not in ("add", "remove",):
+    abort(400, "invalid action, expected add or remove: {}".format(action))
+
+  with database() as db:
+    with cursor(db) as c:
+      if action == "add":
+        Recipe.add_ingredient(c, rid, iid)
+      else:
+        Recipe.remove_ingredient(c, rid, iid)
+
+  return redirect(request.referrer)
+
+

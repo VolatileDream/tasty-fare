@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block header %}
+  <p>Groceries</p>
+  <p>Recipes</p>
+{% endblock %}
+
+{% block left_list %}
+  {% for category in groceries %}
+    {% if category['food'] | length > 0 %}
+      <div class=department>
+        <p>--- {{ category['category'] }} ---</p>
+      </div>
+      {% for food in category['food'] %}
+        <div class="food {{ loop.cycle('odd', 'even') }}">
+          <a href="/app/food/{{ food['id'] }}/edit">[edit]</a>
+          <div class=foodname>{{ food['name'] }}</div>
+          <a href="/app/food/{{ food['id'] }}/bought">[bought]</a>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endfor %}
+{% endblock %}
+
+{% block right_list %}
+  {% for recipe in allrecipes %}
+    <div class="food">
+      <a href="/app/recipe/{{ recipe.id }}/buy">[add all]</a>
+      <div>{{ recipe.name }}</div>
+      <a href="/app/recipe/{{ recipe.id }}">[edit]</a>
+    </div>
+    {% for food in recipe.ingredients %}
+      <div class="food {{ loop.cycle('odd', 'even') }}">
+        <a href="/app/food/{{ food['id'] }}/tobuy">[&lt;]</a>
+        <div class=foodname>{{ food['name'] }}</div>
+        <a href="/app/food/{{ food['id'] }}/edit">[edit]</a>
+      </div>
+    {% endfor %}
+  {% endfor %}
+{% endblock %}
+
+{% block footer %}
+  <p>Feet.</p>
+  <p>Foot</p>
+{% endblock %}
+
