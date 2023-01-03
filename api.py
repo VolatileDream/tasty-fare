@@ -7,7 +7,7 @@ from flask import abort, jsonify, render_template, request, redirect
 
 from app import app
 from storage import database, cursor
-from models import Food, Category, ConsumedFood, Grocery, ProductCodeMapping
+from models import Food, Category, ConsumedFood, Grocery, ProductCodeMapping, Recipe
 import validators
 from upc import UpcType, Upc
 
@@ -186,6 +186,69 @@ def edit_consumed_contents(foodid):
         ConsumedFood.remove(c, foodid)
 
       return jsonify({})
+
+
+@app.route('/api/recipes', methods=('GET', 'POST',))
+def list_recipes():
+  with database() as db:
+    with cursor(db) as c:
+      if request.method == 'GET':
+        result = [{"id": r.rowid, "name": r.name} for r in Recipe.list(c)]
+        return jsonify(result)
+
+      j = request.get_json()
+      validators.require_named(j, "Recipe")
+      r = Recipe.save(c, Recipe(j["name"]))
+      return jsonify({
+        "id": r.rowid,
+        "name": r.name,
+      })
+
+
+@app.route('/api/recipes/<int:recipe_id>', methods=('GET', 'PUT'))
+def one_recipe(recipe_id):
+  with database() as db:
+    with cursor(db) as c:
+      r = maybe_404(Recipe.fetch(c, recipe_id))
+
+      if request.method == 'PUT':
+        j = request.get_json()
+        validators.require_named(j, "Recipe")
+        r.name = j["name"]
+        Recipe.save(c, r)
+
+      return jsonify({
+        "id": r.rowid,
+        "name": r.name,
+      })
+
+
+@app.route('/api/recipes/<int:recipe_id>/ingredients', methods=('GET', 'PUT', 'DELETE'))
+def edit_ingredients(recipe_id):
+  with database() as db:
+    with cursor(db) as c:
+      r = maybe_404(Recipe.fetch(c, recipe_id))
+
+      if request.method != 'GET':
+        j = request.get_json()
+
+        if not isinstance(j, list):
+          abort(400, "expected ingredient id list")
+
+        fn = None
+        if request.method == 'PUT':
+          fn = Recipe.add_ingredient
+        elif request.method == 'DELETE':
+          fn = Recipe.remove_ingredient
+
+        for ingredient in j:
+          # in case we ever add more fields to ingredients in the future.
+          fn(c, ingredient['id'])
+
+
+      return jsonify([
+        {"id": f.rowid, "name": f.name, "category": f.category}
+        for f in Recipe.ingredients(c, recipe_id)])
 
 
 @app.route('/api/upc')
