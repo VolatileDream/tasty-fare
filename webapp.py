@@ -270,7 +270,10 @@ def web_recipe_list():
         recipes = [{
           "id": recipe.rowid,
           "name": recipe.name,
-          "ingredients": list(Recipe.ingredients(r, recipe.rowid)),
+          "ingredients": [{
+            "id": i.rowid,
+            "name": i.name,
+          } for i in Recipe.ingredients(r, recipe.rowid)],
         } for recipe in Recipe.list(c)]
   
   groceries.sort(key=category_dictkey)
