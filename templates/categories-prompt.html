@@ -1,13 +1,6 @@
 {% extends "prompt.html" %}
 
 {% block prompt %}
-  <h2>All Categories</h2>
-  <div class=list>
-  {% for cat in allcategories %}
-    <p>{{ cat.name }}</p>
-  {% endfor %}
-  </div>
-
   <h2>Rename</h2>
   <form method=POST>
     <input type=hidden name=type value=rename />
