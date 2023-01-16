@@ -24,23 +24,39 @@
 
 {% block right_list %}
   {% for recipe in allrecipes %}
-    <div class="food">
-      <a href="/app/recipe/{{ recipe.id }}/buy">[add all]</a>
-      <div>{{ recipe.name }}</div>
-      <a href="/app/recipe/{{ recipe.id }}">[edit]</a>
-    </div>
-    {% for food in recipe.ingredients %}
-      <div class="food {{ loop.cycle('odd', 'even') }}">
-        <a href="/app/food/{{ food['id'] }}/tobuy">[&lt;]</a>
-        <div class=foodname>{{ food['name'] }}</div>
-        <a href="/app/food/{{ food['id'] }}/edit">[edit]</a>
+    <div id="recipe-{{ recipe.id }}" class="collapsed">
+      <div class="item">
+        <a href="/app/recipe/{{ recipe.id }}/buy">[add all]</a>
+        <div onclick='toggle("recipe-{{ recipe.id }}")'>
+          <strong>{{ recipe.name }}</strong>
+        </div>
+        <a href="/app/recipe/{{ recipe.id }}">[edit]</a>
       </div>
+      {% for food in recipe.ingredients %}
+        <div class="food {{ loop.cycle('odd', 'even') }}">
+          <a href="/app/food/{{ food['id'] }}/tobuy">[&lt;]</a>
+          <div class=foodname>{{ food['name'] }}</div>
+          <a href="/app/food/{{ food['id'] }}/edit">[edit]</a>
+        </div>
+    {% else %}
+        <div class="food">
+          <a href="#"></a>
+          <div class=foodname>No food in this recipe...</div>
+          <a href="#"></a>
+        </div>
     {% endfor %}
+    </div>
   {% endfor %}
 {% endblock %}
 
 {% block footer %}
   <p>Feet.</p>
   <p>Foot</p>
+  <script type="text/javascript">
+    function toggle(id) {
+      document.getElementById(id).classList.toggle('collapsed')
+      console.log("toggled " + id)
+    }
+  </script>
 {% endblock %}
 

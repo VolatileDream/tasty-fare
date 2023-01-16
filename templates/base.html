@@ -41,12 +41,22 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
     }
+    .item {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+
+      border-radius: 5px;
+      padding: 10px;
+    }
     .food {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
 
       border-radius: 5px;
       padding: 10px;
+    }
+    .collapsed .food {
+      display: none;
     }
     .food.odd {
       background: #fff;
